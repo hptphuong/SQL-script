@@ -1,0 +1,77 @@
+USE `cms`;
+DROP procedure IF EXISTS `TimChienDich`;
+
+DELIMITER $$
+USE `cms`$$
+
+
+----- sql  ------
+CREATE DEFINER=`root`@`%` PROCEDURE `TimChienDich`(
+	`_ten_chien_dich` varchar(255) CHARSET utf8,
+	`_ngay_bat_dau` varchar(255) ,
+    `_ngay_ket_thuc` varchar(255),
+    `_current_page` int(10),
+    `_nb_items` int(10),
+    `_order_column_name` varchar(255)
+)
+proc_label:BEGIN
+     
+    IF((_current_page is null) OR (_nb_items is null) OR (_current_page<0) OR(_nb_items<0)) THEN 
+		select "_current_page and nb_items have to positive number";
+		LEAVE proc_label;
+	END IF;
+    SET @schema='cms';
+	SET @columnName='*';
+	SET @tableName='chien_dich';
+	SET @where_string='';
+    set @ngay_bat_dau = str_to_date(_ngay_bat_dau, '%Y%m%d');
+    set @ngay_ket_thuc = str_to_date(_ngay_ket_thuc, '%Y%m%d');
+    set @order_column_name=_order_column_name;
+    SET @where_string="";
+
+    IF ((
+    		SELECT count(*) FROM INFORMATION_SCHEMA.COLUMNS 
+    		WHERE TABLE_SCHEMA = @schema
+    		AND TABLE_NAME = @tableName
+    		AND COLUMN_NAME=@order_column_name
+    	)=0) THEN 
+		select "Need column which use to sort data ";
+		LEAVE proc_label;
+	END IF;
+
+	-- select _ten_chien_dich;
+    IF(_ten_chien_dich is not null) THEN
+		SET @where_string=concat('ten_chien_dich like ', "'%",_ten_chien_dich,"%'") ;
+    END IF;
+    -- select @where_string;
+     
+	IF(@ngay_bat_dau is not null) THEN
+		SET @where_string=concat(@where_string,if(@where_string="",""," and")," thoi_gian_bat_dau >= '", @ngay_bat_dau,"'");
+    END IF;
+        -- -- filter ngay ket thuc
+	IF(@ngay_ket_thuc is not null) THEN
+		SET @where_string=concat(@where_string,if(@where_string="",""," and")," thoi_gian_ket_thuc <= '", @ngay_ket_thuc,"'");
+    END IF;
+    -- select @where_string;
+    
+
+
+    
+-- add where to @where_string
+    IF(@where_string <>"") THEN
+		SET @where_string  = concat(" where ",@where_string );
+    END IF;
+	
+	SET @sql_string=CONCAT('select ',@columnName,' FROM ',@tableName,@where_string);
+      
+	-- select @sql_string;
+
+    PREPARE QUERY FROM @sql_string;
+    -- select @sql_string;
+    execute QUERY;
+
+----- sql  ------
+END$$
+
+DELIMITER ;
+
