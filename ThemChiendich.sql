@@ -21,6 +21,7 @@ proc_label:BEGIN
  /*   Exit Handler*/
   DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
+    select "handler";
     select -1 as ten_chien_dich, -1 as bonus,-1 as thoi_gian_bat_dau,-1 as thoi_gian_ket_thuc,-1 as khu_vuc,-1 as url_quang_cao,-1 as ten_loai_quang_cao;
         ROLLBACK;
     END;
@@ -79,7 +80,7 @@ proc_label:BEGIN
     execute QUERY;
     LEAVE proc_label;
   END IF;
-  select ">>>>>>>>>>>>>>>>.test";
+  -- select ">>>>>>>>>>>>>>>>.test";
   select khach_hang_id;
 /* check khach hang exist or not*/
   IF( 
@@ -92,7 +93,7 @@ proc_label:BEGIN
   END IF;
   select "check khach hang";
 /* check loai quang cao exist or not*/
-  
+  select count(*) from loai_quang_cao where id=loai_qc_id;
   IF( 
   (select count(*) from loai_quang_cao where id=loai_qc_id) = 0
   )
@@ -100,7 +101,7 @@ proc_label:BEGIN
     execute QUERY;
     LEAVE proc_label;
   END IF;
-  
+  select loai_qc_id;
   
   
   START TRANSACTION;
@@ -130,7 +131,7 @@ proc_label:BEGIN
     now(),
     @ngay_chuan_bi
   );
-  
+  select "ok";
   SET @chien_dich_count=row_count();
   select @chien_dich_count;
   SET @chien_dich_id = LAST_INSERT_ID();
