@@ -1,10 +1,10 @@
 -- =============================================
 -- Author:      Phuong Hoang
--- Store: ListLoaiQCActive()
+-- Store: TongChienDichDangChay()
 -- Description: List name cac loai quang cao dang active.
 -- Parameters:
 -- Returns:    
---    - Result with format id, ten_loai_quang_cao
+--    - Result with sum of chien dich dang chay
 -- History:
 --   01/17/2018 - Phuong Hoang: Create first version of store proc.
 -- Example call ListLoaiQCActive()
