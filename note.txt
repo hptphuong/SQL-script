@@ -5,6 +5,7 @@
 Primary key nên là bien_kiem_soat thay cho auto ID
 
 @xe_chien_dich vs @xecd
+
 Phần này sao phải tách 2 bảng vậy em. Mình keep desgin như của a.Nam vẫn ok mà.( chỉ dùng bản phụ với 2 fk trỏ tới xe(bien_kiem_soat) và chien_dich(id) as chien_dich_id). Em xem lại rùi cho ý kiến nha
 https://blogs.msdn.microsoft.com/mitsu/2007/06/20/how-to-implement-a-many-to-many-relationship-using-linq-to-sql/
 @xe_chien_dich nen doi xe_id lai thanh bien_kiem_soat tuong ung voi primarykey cua bang @xe.
@@ -28,6 +29,7 @@ field tai_xe_id cai nay minh ko can, nen de bang @tai_xe reference den @tai_khoa
 @all:
 
 Theo nhu design cua a.Nam nen thong nhat tat ca cac field de hien thi trang thai(active/unactive) la statusRecord, cua e co bang de la status_code bang de la statusRecord nhin hoi roi. Phan nay em check lai cai cua a.Nam va change lai nha.
+Va kieu du lieu nay nen la boolean hoac int nha em, dung de varchar.
 
 1/ Man hinh them chien dich
 
@@ -40,3 +42,5 @@ Theo nhu design cua a.Nam nen thong nhat tat ca cac field de hien thi trang thai
 
 
 2/ Man hinh chon xe chien dich
+
+Quảng cáo tràn đuôi
