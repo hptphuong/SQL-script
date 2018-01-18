@@ -112,6 +112,21 @@ call ListLoaiQCActive();
 call ListNameKhachHang();
 
 
+call ThemChienDich(
+  '20180118',
+    '20180220',
+    2,
+    3,
+    'Test Area 1',
+    1,
+    'Bão sa mạc 5',
+    'Bình thường',
+    "front-http://aaa.com;left-http://xyz.com",
+    4,
+    1
+    
+);
+
 
 
 
