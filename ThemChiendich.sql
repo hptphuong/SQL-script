@@ -1,3 +1,19 @@
+-- call ThemChienDich(
+--   '20180118',
+--     '20180218',
+--     2,
+--     3,
+--     'Test Area 1',
+--     10,
+--     1,
+--     'Bão sa mạc 1',
+--     'Binh thuong',
+--     "front-http://aaa.com",
+--     1,
+--     1
+    
+-- );
+
 USE `asdgo_cms`;
 DROP procedure IF EXISTS `ThemChienDich`;
 
@@ -10,18 +26,22 @@ CREATE DEFINER=`root`@`%` PROCEDURE `ThemChienDich`(
   `_bonus` int(11),
   `_khu_vuc` varchar(255) CHARSET utf8,
   `_so_luong_xe` int(11),
-  `_status_record` varchar(255) CHARSET utf8,
+  `_status_record` bit(1),
   `_ten_chien_dich` varchar(255) CHARSET utf8,
   `_trang_thai_chien_dich` varchar(255) CHARSET utf8,
   `_url_quang_cao` varchar(255) CHARSET utf8,
   `khach_hang_id`bigint(20),
   `loai_qc_id` bigint(20)
 )
-proc_label:BEGIN
+
+  
+  proc_label:BEGIN
  /*   Exit Handler*/
   DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
+
     select "handler";
+
     select -1 as ten_chien_dich, -1 as bonus,-1 as thoi_gian_bat_dau,-1 as thoi_gian_ket_thuc,-1 as khu_vuc,-1 as url_quang_cao,-1 as ten_loai_quang_cao;
         ROLLBACK;
     END;
@@ -67,7 +87,7 @@ proc_label:BEGIN
     LEAVE proc_label;
   END IF;
 
-  SET @ngay_chuan_bi= adddate(@thoi_gian_bat_dau,interval @bonus day) ;
+  SET @ngay_chuan_bi= adddate(@thoi_gian_bat_dau,interval @songay_setup day) ;
   IF(_khu_vuc is null or _khu_vuc="")
   THEN
     execute QUERY;
@@ -103,23 +123,11 @@ proc_label:BEGIN
   END IF;
   select loai_qc_id;
   
+  select @ngay_chuan_bi, @thoi_gian_bat_dau,@thoi_gian_ket_thuc,@ngay_chuan_bi;
   
   START TRANSACTION;
-  INSERT INTO `asdgo_cms`.`chien_dich` (
-    `bonus`, 
-    `khu_vuc`, 
-    `ngay_ket_thuc_tam_thoi`, 
-    `so_luong_xe`, 
-    `status_record`, 
-    `ten_chien_dich`, 
-    `thoi_gian_bat_dau`, 
-    `thoi_gian_ket_thuc`, 
-    `trang_thai_chien_dich`,
-    `create_date`,
-    `ngay_chuan_bi`
-    ) 
-  VALUES ( 
-    @bonus, 
+  select "insert to chien_dich in commit mode";
+  select     @bonus, 
     _khu_vuc, 
     @ngay_ket_thuc_tam_thoi, 
     _so_luong_xe, 
@@ -128,10 +136,35 @@ proc_label:BEGIN
     @thoi_gian_bat_dau, 
     @thoi_gian_ket_thuc, 
     _trang_thai_chien_dich,
+    now();
+
+  INSERT INTO `asdgo_cms`.`chien_dich` (
+  `bonus`,
+  `create_date`,
+  `khu_vuc`,
+  `ngay_chuan_bi`,
+  `ngay_ket_thuc_tam_thoi` ,
+  `so_luong_xe`,
+  `status_record`,
+  `ten_chien_dich` ,
+  `thoi_gian_bat_dau`,
+  `thoi_gian_ket_thuc`,
+    `trang_thai_chien_dich`
+    ) 
+  VALUES ( 
+    @bonus, 
     now(),
-    @ngay_chuan_bi
+    _khu_vuc, 
+    @ngay_chuan_bi,
+    @ngay_ket_thuc_tam_thoi,
+    0,
+    _status_record,
+    _ten_chien_dich, 
+    @thoi_gian_bat_dau,
+    @thoi_gian_ket_thuc,
+    _trang_thai_chien_dich
   );
-  select "ok";
+  select "insert to chien_dich in commit mode";
   SET @chien_dich_count=row_count();
   select @chien_dich_count;
   SET @chien_dich_id = LAST_INSERT_ID();
