@@ -44,3 +44,39 @@ Va kieu du lieu nay nen la boolean hoac int nha em, dung de varchar.
 2/ Man hinh chon xe chien dich
 
 Quảng cáo tràn đuôi
+
+
+a Nam man hinh chon xe khi tao chien dich, co chia thanh xe sap het chien dich, xe co the tao chien dich, xe cua chien dich khac
+
+- Xe sap het chien dich, cai nay load khoang bao nhieu ngay sap het hay de dynamic lun anh.
+- Xe co the tao chien dich: cai nay trong meeting minute thay ghi la thay cho xe dang trong. Vay cu the xe nao la xe co the tao chien dich
+- Xe cua chien dich khac: cai nay co duplicate voi xe sap het chien dich ko, vi chua het nen xe nay van tinh la cua chien dich khac .
+
+3 cai filter nay co phai no can phai tach roi nhau, ko duoc duplicate dung ko anh. Em thay logic no ko clear va co kha nang overlap
+
+
+So ngay sap het
+Define trong config em nhe
+Trong table config
+
+
+=======> xe sap het chien dich thuan tuy la xe gan het chien dich cua loai quang cao do
+
+Cau hoi thu 2
+The nao la Trong
+Xe trong nhu minh noi la xe trong khoang thoi gian tao chien dich va no available
+Available se bao gom thoi gian va loai quang cao
+Phai xem them cai nay
+Nen dieu kien xet dau tien la loai quang cao
+
+
+loaiqc, time
+
+sap het chien dich ===> remain time loaiqc < threshold 
+
+xe availabe ===> xe co loai qc & time available
+
+xe chien dich khac ===> phan bu 2 loai tren va math loaiqc
+
+
+

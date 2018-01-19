@@ -1,0 +1,3 @@
+alter table xe_chien_dich add constraint unique (chien_dich_id,bien_kiem_soat);
+
+Add unique key  (chien_dich_id,bien_kiem_soat) for xe_chien_dich
