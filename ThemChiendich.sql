@@ -4,6 +4,7 @@
 -- Parameters:
 --   _thoi_gian_bat_dau` varchar(255):chuoi co dang "yyyymmdd"
 --   _ngay_ket_thuc_tam_thoi varchar(255): ngay ket thuc tren hop dong, , chuoi co dang "yyyymmdd"
+--   _songay_setup int(11),
 --   _bonus int(11): ngay cong them, 
 --   _khu_vuc varchar(255): khu vuc cua chien dich , cho phep go tieng viet co dau
 --   _status_record varchar(255): 0/1 the hien active/unactive chien dich
@@ -193,7 +194,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `ThemChienDich`(
       
   COMMIT;
   
-  select distinct cd.ten_chien_dich, cd.bonus,cd.thoi_gian_bat_dau,cd.thoi_gian_ket_thuc,cd.khu_vuc,qc.url_quang_cao,lqc.ten_loai_quang_cao
+  select distinct cd.id, cd.ten_chien_dich, cd.bonus,cd.thoi_gian_bat_dau,cd.thoi_gian_ket_thuc,cd.khu_vuc,qc.url_quang_cao,lqc.ten_loai_quang_cao
   from chien_dich cd
   inner join quang_cao qc
   inner join loai_quang_cao lqc

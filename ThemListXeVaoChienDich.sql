@@ -1,3 +1,23 @@
+-- =============================================
+-- Author:      Phuong Hoang
+-- Store:  ThemListXeVaoChienDich
+-- Description: Them list id cac xe vao chien dich.
+-- Parameters:
+-- 	`_chiendich_id` bigint(20),
+-- 	`_list_bien_kiem_soat` varchar(255) -- split by comma
+--
+-- Returns:    
+--      danh sach id cac xe da duoc add tuong ung voi chien dich
+-- History:
+--   01/19/2018 - Phuong Hoang: Create store.
+-- Example
+--   call ThemListXeVaoChienDich(5,"0001;0002");
+-- # id, chien_dich_id, bien_kiem_soat, create_date
+-- '75', '5', '0001', '2018-01-19 15:37:44'
+-- '76', '5', '0002', '2018-01-19 15:37:44'
+
+-- ===================================
+
 USE `asdgo_cms`;
 DROP procedure IF EXISTS `ThemListXeVaoChienDich`;
 
@@ -11,16 +31,23 @@ CREATE DEFINER=`root`@`%` PROCEDURE `ThemListXeVaoChienDich`(
 proc_label:BEGIN
 DECLARE strLen    INT DEFAULT 0;
 DECLARE SubStrLen INT DEFAULT 0;
+DECLARE nb_sevenseat INT DEFAULT 0;
+DECLARE nb_fourseat INT DEFAULT 0;
 
 
 DECLARE EXIT HANDLER FOR SQLEXCEPTION
 BEGIN
 
-	GET DIAGNOSTICS CONDITION 1 @sqlstate = RETURNED_SQLSTATE, 
-	@errno = MYSQL_ERRNO, @text = MESSAGE_TEXT;
-	SET @full_error = CONCAT("ERROR ", @errno, " (", @sqlstate, "): ", @text);
-	SELECT @full_error;
-	select "Handler error";
+	-- GET DIAGNOSTICS CONDITION 1 @sqlstate = RETURNED_SQLSTATE, 
+	-- @errno = MYSQL_ERRNO, @text = MESSAGE_TEXT;
+	-- SET @full_error = CONCAT("ERROR ", @errno, " (", @sqlstate, "): ", @text);
+	-- SELECT @full_error;
+	
+	select -1 as id, 
+		-1 as chien_dich_id, 
+		-1 as bien_kiem_soat, 
+		-1 as create_date;
+
 	rollback;
 END;
 	
@@ -49,6 +76,18 @@ do_this:LOOP
             values(@chiendich_id,@bien_kiem_soat,1,now())
             ON DUPLICATE KEY UPDATE
 			chien_dich_id=@chiendich_id, bien_kiem_soat=@bien_kiem_soat;
+
+			IF(
+				select(select so_cho 
+				from asdgo_cms.xe
+				where bien_kiem_soat=@bien_kiem_soat)=4	
+				)
+			THEN
+				set nb_fourseat=nb_fourseat+1;
+
+			else
+				set nb_sevenseat= nb_sevenseat+1;
+			END IF;
 		else
 			-- truncate tmp;
             rollback;
@@ -61,7 +100,10 @@ do_this:LOOP
 			LEAVE do_this;
 		END IF;
 	END LOOP do_this;
-
+	/*update chien dich*/
+	update chien_dich
+		set tong4cho=nb_fourseat, tong7cho=nb_sevenseat, so_luong_xe = nb_sevenseat+nb_fourseat
+		where id = @chiendich_id;
     COMMIT;
     select id, chien_dich_id, bien_kiem_soat, create_date
     from xe_chien_dich
