@@ -20,18 +20,24 @@ proc_label:BEGIN
 
 
     Parameters:
-    	`_chiendich_id` bigint(20),   -- id cua chien dich moi tao/can chinh sua
+    	`_chiendich_id` bigint(20),   -- id cua chien dich moi tao/can chinh su
     	
-    	Returns:    
+    Returns:    
           danh sach id cac xe da duoc add tuong ung voi chien dich
+
     History:
     	  01/27/2018 - Phuong Hoang: Create store.
     Example
-    	call ListXeTrong(39);
+    	call ListXeTrong(44);
 
-    Return format:
-    	# bien_kiem_soat, bai_xe, create_date, loai_xe, so_cho, so_quan_ly, status_record, tinh_trang_xe, ten_chien_dich, thoi_gian_ket_thuc_chien_dich
-    	'0004', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '4', '15', '1', 'Normal', 'Bão sa mạc', '7'
+     Return format:
+    	# bien_kiem_soat, bai_xe, create_date, loai_xe, so_cho, so_quan_ly, status_record, tinh_trang_xe
+        '0003', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '4', '14', '1', 'Normal'
+        '0004', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '4', '15', '1', 'Normal'
+        '0005', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '7', '16', '1', 'Normal'
+        '0006', 'bai 2', '2018-01-19 03:25:40', 'Toyota', '7', '17', '1', 'Normal'
+        '0007', 'bai 2', '2018-01-19 03:25:40', 'Toyota', '4', '18', '1', 'Normal'
+        '0009', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '7', '19', '1', 'Normal'
 
 
 ===================================

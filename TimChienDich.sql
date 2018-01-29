@@ -1,45 +1,4 @@
--- =============================================
--- Author:      Phuong Hoang
--- Description: Tim chien dich theo cac filter cua man hinh quan ly chien dich.
--- Parameters:
---  `_ten_chien_dich` varchar(255) CHARSET utf8, co the nhap tieng viet
---  `_ngay_bat_dau` varchar(255) , _ngay_bat_dau theo dinh dang yyyymmdd neu nhap sai format filter se bi bo qua
---  `_ngay_ket_thuc` varchar(255), _ngay_ket_thuc theo dinh dang yyyymmdd neu nhap sai format filter se bi bo qua
---  `_current_page` int(10), _current_page phai lon hon 0
---  `_nb_items` int(10), _nb_items can phai la so duong
---  `_order_column_name` varchar(255), gia tri nay khong the thieu de sort du lieu
---
--- Returns:    
---      Ket qua theo cac filter o tren
--- History:
---   01/12/2018 - Phuong Hoang: Create first version of store proc.
---   01/19/2018 - Phuong Hoang: update to new db, add label field to return value. This field has format 
--- Example
--- call TimChienDich(
---    'sa', -- `_ten_chien_dich` varchar(255) CHARSET utf8,
---     null,-- `_ngay_bat_dau` varchar(255) ,
---     null,-- `_ngay_ket_thuc` varchar(255),
---     1,-- `_current_page` int(10),
---     25,-- _nb_items` int(10),
---     'khu_vuc' -- `_order_column_name` varchar(255)
--- );
--- call TimChienDich(
---    null, -- `_ten_chien_dich` varchar(255) CHARSET utf8,
---     '20180118',-- `_ngay_bat_dau` varchar(255) ,
---     '20180204',-- `_ngay_ket_thuc` varchar(255),
---     1,-- `_current_page` int(10),
---     25,-- _nb_items` int(10),
---     'khu_vuc' -- `_order_column_name` varchar(255)
--- );
--- call TimChienDich(
---    'sa', -- `_ten_chien_dich` varchar(255) CHARSET utf8,
---     '20180118',-- `_ngay_bat_dau` varchar(255) ,
---     '20180204',-- `_ngay_ket_thuc` varchar(255),
---     1,-- `_current_page` int(10),
---     25,-- _nb_items` int(10),
---     'khu_vuc' -- `_order_column_name` varchar(255)
--- );
--- =============================================
+
 
 USE `asdgo_cms`;
 DROP procedure IF EXISTS `TimChienDich`;
@@ -55,10 +14,59 @@ CREATE DEFINER=`root`@`%` PROCEDURE `TimChienDich`(
     `_ngay_ket_thuc` varchar(255),
     `_current_page` int(10),
     `_nb_items` int(10),
-    `_order_column_name` varchar(255)
+    `_order_column_name` varchar(255),
+    `_filter_by_khu_vuc` varchar(255)
 )
 proc_label:BEGIN
-     
+     -- =============================================
+-- Author:      Phuong Hoang
+-- Description: Tim chien dich theo cac filter cua man hinh quan ly chien dich.
+-- Parameters:
+--  `_ten_chien_dich` varchar(255) CHARSET utf8, co the nhap tieng viet
+--  `_ngay_bat_dau` varchar(255) , _ngay_bat_dau theo dinh dang yyyymmdd neu nhap sai format filter se bi bo qua
+--  `_ngay_ket_thuc` varchar(255), _ngay_ket_thuc theo dinh dang yyyymmdd neu nhap sai format filter se bi bo qua
+--  `_current_page` int(10), _current_page phai lon hon 0
+--  `_nb_items` int(10), _nb_items can phai la so duong
+--  `_order_column_name` varchar(255), gia tri nay khong the thieu de sort du lieu,
+--  `_filter_by_khu_vuc` varchar(255)
+--
+-- Returns:    
+--      Ket qua theo cac filter o tren
+-- History:
+--   01/12/2018 - Phuong Hoang: Create first version of store proc.
+--   01/19/2018 - Phuong Hoang: update to new db, add label field to return value. This field has format 
+--   01/28/2018 - Phuong Hoang: update count all item for paging
+--                              Filter by khu vuc
+
+-- Example
+-- call TimChienDich(
+--    'sa', -- `_ten_chien_dich` varchar(255) CHARSET utf8,
+--     null,-- `_ngay_bat_dau` varchar(255) ,
+--     null,-- `_ngay_ket_thuc` varchar(255),
+--     1,-- `_current_page` int(10),
+--     25,-- _nb_items` int(10),
+--     'khu_vuc', -- `_order_column_name` varchar(255)
+--      'Test'
+-- );
+-- call TimChienDich(
+--    null, -- `_ten_chien_dich` varchar(255) CHARSET utf8,
+--     '20180118',-- `_ngay_bat_dau` varchar(255) ,
+--     '20180204',-- `_ngay_ket_thuc` varchar(255),
+--     1,-- `_current_page` int(10),
+--     25,-- _nb_items` int(10),
+--     'khu_vuc', -- `_order_column_name` varchar(255)
+--      'HCM'
+-- );
+-- call TimChienDich(
+--    'sa', -- `_ten_chien_dich` varchar(255) CHARSET utf8,
+--     '20180118',-- `_ngay_bat_dau` varchar(255) ,
+--     '20180204',-- `_ngay_ket_thuc` varchar(255),
+--     1,-- `_current_page` int(10),
+--     25,-- _nb_items` int(10),
+--     'khu_vuc', -- `_order_column_name` varchar(255)
+--      'Test'
+-- );
+-- =============================================
     IF((_current_page is null) OR (_nb_items is null) OR (_current_page<=0) OR(_nb_items<0)) THEN 
         select "_current_page and nb_items have to positive number";
         LEAVE proc_label;
@@ -110,6 +118,12 @@ proc_label:BEGIN
     IF(@ngay_ket_thuc is not null) THEN
         SET @where_string=concat(@where_string,if(@where_string="",""," and")," thoi_gian_ket_thuc <= '", @ngay_ket_thuc,"'");
     END IF;
+
+    -- filter by khu_vuc
+    IF(_filter_by_khu_vuc is not null) THEN
+        SET @where_string=concat('khu_vuc like ', "'%",_filter_by_khu_vuc,"%'") ;
+    END IF;
+
     -- select @where_string;
     
     -- select data by current page and nb of items
@@ -121,9 +135,10 @@ proc_label:BEGIN
     IF(@where_string <>"") THEN
         SET @where_string  = concat(" where ",@where_string );
     END IF;
-    
-    SET @sql_string=CONCAT('select ',@columnName,@label,@tableJoinName,@where_string,@order_string,@limit_string,";");
-      
+    SET @sql_all_item =CONCAT(' ,( Select count(*)',@tableJoinName,@where_string,@order_string," ) as count_all_item ");
+    -- select @sql_all_item;
+    SET @sql_string=CONCAT('select ',@columnName,@label,@sql_all_item,@tableJoinName,@where_string,@order_string,@limit_string,";");
+    -- select @columnName,@label,@tableJoinName,@where_string,@order_string,@limit_string;
     -- select @sql_string;
 
     PREPARE QUERY FROM @sql_string;

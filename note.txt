@@ -1,4 +1,4 @@
-@loai_quang_cao
+﻿@loai_quang_cao
 - Insert data theo như a.Nhật giúp a.
 
 @xe
@@ -78,5 +78,6 @@ xe availabe ===> xe co loai qc & time available
 
 xe chien dich khac ===> phan bu 2 loai tren va math loaiqc
 
+http://210.245.30.157:8080/campaign-service/api/swagger-ui.html#!/chien45dich45api/filterUsingGET
 
-
+https://docs.google.com/document/d/1gLfDfFGFRr9t5O6b8JwZjqjUPvDHGayrVP5HoyjobHw/edit?ts=5a5cdef7

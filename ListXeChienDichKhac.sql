@@ -1,9 +1,9 @@
 USE `asdgo_cms`;
-DROP procedure IF EXISTS `ListXeSapHetChienDich`;
+DROP procedure IF EXISTS `ListXeChienDichKhac`;
 
 DELIMITER $$
 USE `asdgo_cms`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `ListXeSapHetChienDich`(
+CREATE DEFINER=`root`@`%` PROCEDURE `ListXeChienDichKhac`(
 	_chien_dich_id bigint(20)
     )
 
@@ -12,13 +12,10 @@ proc_label:BEGIN
 /*
 =============================================
     Author:      Phuong Hoang
-    Store:  ListXeSapHetChienDich
-    Description: List tat ca cac xe sap het chien dich voi cac dieu kien:
-    	- List cac xe thuoc chien dich dang chay voi cung loai quang cao, co thoi gian overlap luc dau.
-    		(thoi_gian_chuan_bi<thoi_gian_ket_thuc)
-    	- Thoi gian sap het chien dich duoc tinh bang hieu so giua thoi_gian_chuan_bi cua chien dich dang 
-    		tao va thoi_gian_ket_thuc cua chien dich dang chay
-    	- Cac xe da bi overlap se ko dc list
+    Store:  ListXeChienDichKhac
+    Description: List tat ca cac xe o trong chien dich khac overlap voi duoi cua chien dich dang tao:
+    	- Neu xe da duoc add vao chien dich hien tai khi chinh sua se ko dc list vao day nua
+        - Neu xe da chay nhieu chien dich( da duplicate) cung ko dc list vao day
 
 
     Parameters:
@@ -27,19 +24,15 @@ proc_label:BEGIN
     	Returns:    
           danh sach id cac xe da duoc add tuong ung voi chien dich
     History:
-    	  01/27/2018 - Phuong Hoang: Create store.
+    	  01/28/2018 - Phuong Hoang: Create store.
     Example
-    	call ListXeSapHetChienDich(45);
+    	call ListXeChienDichKhac(56);
 
     Return format:
     	# bien_kiem_soat, bai_xe, create_date, loai_xe, so_cho, so_quan_ly, status_record, tinh_trang_xe, ten_chien_dich, thoi_gian_ket_thuc_chien_dich, chien_dich_id
-        '0001', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '4', '12', '1', 'Normal', 'Test chien dich moi overlap duoi', '2', '42'
-        '0002', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '7', '13', '1', 'Normal', 'Test chien dich moi overlap duoi', '2', '42'
-        '0003', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '4', '14', '1', 'Normal', 'Test listxesaphethan 2', '12', '47'
-        '0004', 'bai 1', '2018-01-19 03:25:40', 'Toyota', '4', '15', '1', 'Normal', 'Test listxesaphethan 2', '12', '47'
-
-
-
+        '0008', 'bai 1', '2018-01-28 08:32:18', 'Toyota', '7', '29', '1', 'Normal', 'sample campaign 60', '90', '60'
+        '0018', 'bai 1', '2018-01-28 05:06:19', 'Toyota', '4', '28', '1', 'Normal', 'sample campaign 60', '90', '60'
+        '0019', 'bai 4', '2018-01-28 08:33:44', 'Toyota', '7', '29', '1', 'Normal', 'sample campaign 60', '90', '60'
 ===================================
 */
 
@@ -48,7 +41,7 @@ proc_label:BEGIN
 	SET current_start_time=null;
 	SET current_end_time=null;
 	SET @loai_qc_id = null;
-	SET @max_time_xe_sap_het_cdich =null;
+
 
 /*-----------------------------------------------------*/
 	select cd.ngay_chuan_bi, cd.thoi_gian_ket_thuc
@@ -56,25 +49,19 @@ proc_label:BEGIN
 	from chien_dich cd
 	where cd.id=_chien_dich_id;
 
-
-    
     
     select qc.id_loaiqc
     into @loai_qc_id
     from quang_cao qc
     where chien_dich_id=_chien_dich_id;	
     
-    
-    select ts.gia_tri
-    into @max_time_xe_sap_het_cdich
-    from tham_so ts
-    where ten_tham_so = 'max_time_xe_sap_het_cdich';
+
     
     IF (
     	current_start_time is null
     	or current_end_time is null
     	or @loai_qc_id is null
-    	or @max_time_xe_sap_het_cdich is null 
+    	
     	)
     THEN
         select current_start_time,current_end_time,@loai_qc_id,@max_time_xe_sap_het_cdich;
@@ -120,18 +107,18 @@ proc_label:BEGIN
     and xe.status_record=1
   	and qc.status_record=1
   	and cd.status_record=1
-    and cd.thoi_gian_ket_thuc>=current_start_time
-    and cd.thoi_gian_ket_thuc<=current_end_time
-    and cd.ngay_chuan_bi<current_start_time
-    and datediff(cd.thoi_gian_ket_thuc, current_start_time)<@max_time_xe_sap_het_cdich
+    and cd.ngay_chuan_bi<=current_end_time
+    and current_end_time<= cd.thoi_gian_ket_thuc
+    and cd.ngay_chuan_bi>current_start_time
     and qc.id_loaiqc =@loai_qc_id
-    and xe.bien_kiem_soat not in(
+    and xe.bien_kiem_soat not in( 
+        -- xe da co trong chien dich se khong xuat hien o day
     	select bien_kiem_soat
     	from tmp_xe_in_chiendich
     	);
 
     -- select * from tmp_rlst;
-    /*Delete cars which run in multiple campaigns*/ 
+    /*Delete cars which is running in multiple campaigns*/ 
 	
     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_rlst_duplcate
     select bien_kiem_soat
