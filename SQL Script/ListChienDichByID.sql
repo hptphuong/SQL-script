@@ -31,9 +31,14 @@ BEGIN
     into @loai_quang_cao_id,@ten_loai_quang_cao
     from loai_quang_cao lqc
     where lqc.id=(
-    select qc.id_loaiqc
-    from quang_cao qc
-    where qc.chien_dich_id=_chien_dich_id);
+	    select qc.id_loaiqc
+	    from quang_cao qc
+	    where qc.chien_dich_id=_chien_dich_id
+	    and qc.status_record=1
+	    )
+    and lqc.status_record=1;
+
+
 	select 
 			cd.id, 
 		  	cd.bonus, 
@@ -60,7 +65,9 @@ BEGIN
     from chien_dich cd
     inner join khach_hang kh
 		on cd.khach_hang_id=kh.id
-    where cd.id =_chien_dich_id;
+    where cd.id =_chien_dich_id
+    and cd.status_record=1
+    and kh.status_record=1;
 END$$
 
 DELIMITER ;

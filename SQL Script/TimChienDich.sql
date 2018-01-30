@@ -120,11 +120,11 @@ proc_label:BEGIN
     END IF;
 
     -- filter by khu_vuc
-    IF(_filter_by_khu_vuc is not null) THEN
-        SET @where_string=concat('khu_vuc like ', "'%",_filter_by_khu_vuc,"%'") ;
-    END IF;
-
     -- select @where_string;
+    IF(_filter_by_khu_vuc is not null) THEN
+        SET @where_string=concat(@where_string,' and khu_vuc like ', "'%",_filter_by_khu_vuc,"%'") ;
+    END IF;
+ 
     
     -- select data by current page and nb of items
 
