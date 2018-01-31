@@ -14,7 +14,8 @@ CREATE DEFINER=`root`@`%` PROCEDURE `ChinhSuaChienDich`(
   `_url_quang_cao` varchar(255) CHARSET utf8,
   `_khach_hang_id` bigint(20),
   `_loai_qc_id` bigint(20),
-  `_tien_chien_dich` bigint(20)
+  `_tien_chien_dich` bigint(20),
+  `_ghi_chu` varchar(255)
 
 )
 proc_label:BEGIN
@@ -55,7 +56,8 @@ proc_label:BEGIN
 --   "front-http://chinh sua chien dich test 2",
 --   1,
 --   1,
---   15000
+--   15000,
+--   "note1"
 
 -- );
 -- =============================================
@@ -191,8 +193,23 @@ proc_label:BEGIN
   -- END IF;
   
   START TRANSACTION;
+  SET @old_ghi_chu=null;
+  SET @new_ghi_chu=null;
+  select cd.ghi_chu
+  into @old_ghi_chu
+  from chien_dich cd
+  where cd.id=_chien_dich_id;
+  IF (@old_ghi_chu is null)
+    
+  THEN
+      SET @new_ghi_chu= _ghi_chu;
+  ELSE
+        SET @new_ghi_chu=concat(@old_ghi_chu," ; " ,_ghi_chu);
 
- 
+  End IF;
+  
+
+  -- select @old_ghi_chu,_ghi_chu,@new_ghi_chu;
   update chien_dich
   SET 
     bonus = @bonus,
@@ -204,7 +221,8 @@ proc_label:BEGIN
     thoi_gian_bat_dau=@thoi_gian_bat_dau,
     thoi_gian_ket_thuc=@thoi_gian_ket_thuc,
     khach_hang_id=_khach_hang_id,
-    tien_chien_dich=_tien_chien_dich
+    tien_chien_dich=_tien_chien_dich,
+    ghi_chu= @new_ghi_chu
   where id =_chien_dich_id;
 
 
@@ -239,10 +257,12 @@ proc_label:BEGIN
 
   COMMIT;
   
+
   select distinct cd.id, cd.ten_chien_dich, cd.bonus,cd.thoi_gian_bat_dau,cd.thoi_gian_ket_thuc,
         cd.khu_vuc,qc.url_quang_cao,lqc.ten_loai_quang_cao,
         cd.tien_chien_dich, cd.ngay_chuan_bi, cd.ngay_ket_thuc_tam_thoi,
-        cd.khach_hang_id
+        cd.khach_hang_id,
+        cd.ghi_chu
   from chien_dich cd
     inner join quang_cao qc
     inner join loai_quang_cao lqc

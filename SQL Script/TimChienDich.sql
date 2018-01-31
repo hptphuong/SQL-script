@@ -1,13 +1,3 @@
-
-
-USE `asdgo_cms`;
-DROP procedure IF EXISTS `TimChienDich`;
-
-DELIMITER $$
-USE `asdgo_cms`$$
-
-
--- --- sql  ------
 CREATE DEFINER=`root`@`%` PROCEDURE `TimChienDich`(
     `_ten_chien_dich` varchar(255) CHARSET utf8,
     `_ngay_bat_dau` varchar(255) ,
@@ -39,15 +29,15 @@ proc_label:BEGIN
 --                              Filter by khu vuc
 
 -- Example
--- call TimChienDich(
---    'sa', -- `_ten_chien_dich` varchar(255) CHARSET utf8,
---     null,-- `_ngay_bat_dau` varchar(255) ,
---     null,-- `_ngay_ket_thuc` varchar(255),
---     1,-- `_current_page` int(10),
---     25,-- _nb_items` int(10),
---     'khu_vuc', -- `_order_column_name` varchar(255)
---      'Test'
--- );
+call TimChienDich(
+   'sa', -- `_ten_chien_dich` varchar(255) CHARSET utf8,
+    null,-- `_ngay_bat_dau` varchar(255) ,
+    null,-- `_ngay_ket_thuc` varchar(255),
+    1,-- `_current_page` int(10),
+    25,-- _nb_items` int(10),
+    'khu_vuc', -- `_order_column_name` varchar(255)
+     'Test'
+);
 -- call TimChienDich(
 --    null, -- `_ten_chien_dich` varchar(255) CHARSET utf8,
 --     '20180118',-- `_ngay_bat_dau` varchar(255) ,
@@ -73,7 +63,12 @@ proc_label:BEGIN
     END IF;
 
     SET @schema='asdgo_cms';
-    SET @columnName=' chien_dich.id, ten_chien_dich, thoi_gian_bat_dau, thoi_gian_ket_thuc,khu_vuc,(tong4cho+tong7cho) as tong_xe, trang_thai_chien_dich,url_quang_cao ';
+    SET @columnName=' chien_dich.id, 
+                        ten_chien_dich, 
+                        thoi_gian_bat_dau, 
+                        thoi_gian_ket_thuc,khu_vuc,
+                        (tong4cho+tong7cho) as tong_xe, 
+                        trang_thai_chien_dich,url_quang_cao ';
     SET @label=' ,concat(CASE 
             WHEN (thoi_gian_bat_dau<=Date(now())and thoi_gian_ket_thuc>=Date(Now())) THEN "running"
             WHEN thoi_gian_bat_dau>Date(now()) THEN "waiting"
@@ -81,7 +76,12 @@ proc_label:BEGIN
             ELSE NULL
             END,";",IF(chien_dich.status_record = 1, "Active", "Unactive")) as label ';
     SET @tableName="chien_dich";
-    SET @tableJoinName=' FROM chien_dich inner join quang_cao on chien_dich.id=quang_cao.chien_dich_id ';
+    SET @tableJoinName=' FROM chien_dich 
+                        inner join quang_cao 
+                        inner join khach_hang
+                            on chien_dich.id=quang_cao.chien_dich_id
+                            and khach_hang.id=chien_dich.khach_hang_id
+        ';
     SET @where_string='';
     set @ngay_bat_dau = str_to_date(_ngay_bat_dau, '%Y%m%d');
     set @ngay_ket_thuc = str_to_date(_ngay_ket_thuc, '%Y%m%d');
@@ -137,7 +137,7 @@ proc_label:BEGIN
     END IF;
     SET @sql_all_item =CONCAT(' ,( Select count(*)',@tableJoinName,@where_string,@order_string," ) as count_all_item ");
     -- select @sql_all_item;
-    SET @sql_string=CONCAT('select ',@columnName,@label,@sql_all_item,@tableJoinName,@where_string,@order_string,@limit_string,";");
+    SET @sql_string=CONCAT('select ',@columnName,@label,@sql_all_item, ' ,khach_hang.ten_viet_tat as khach_hang_ten_viet_tat',@tableJoinName,@where_string,@order_string,@limit_string,";");
     -- select @columnName,@label,@tableJoinName,@where_string,@order_string,@limit_string;
     -- select @sql_string;
 
@@ -150,10 +150,4 @@ proc_label:BEGIN
 
     -- select @sql_string;    
 -- --- sql  ------
-END$$
-
-DELIMITER ;
-
-
-
-
+END
